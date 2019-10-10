@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ungrci/screens/my_service.dart';
 import 'package:ungrci/screens/my_style.dart';
 
 class Register extends StatefulWidget {
@@ -74,8 +76,58 @@ class _RegisterState extends State<Register> {
         formKey.currentState.save();
         print(
             'name = $nameString, email = $emailString, password = $passwordString');
+        registerThread();
       },
     );
+  }
+
+  Future<void> registerThread() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    await firebaseAuth
+        .createUserWithEmailAndPassword(
+            email: emailString, password: passwordString)
+        .then((response) {
+      print('Register Success');
+      setUpDisplayName();
+    }).catchError((response) {
+      String title = response.code;
+      String message = response.message;
+      print('title = $title, message = $message');
+      myAlert(title, message);
+    });
+  }
+
+  Future<void> setUpDisplayName() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    await firebaseAuth.currentUser().then((response) {
+      UserUpdateInfo userUpdateInfo = UserUpdateInfo();
+      userUpdateInfo.displayName = nameString;
+      response.updateProfile(userUpdateInfo);
+
+      MaterialPageRoute materialPageRoute =
+          MaterialPageRoute(builder: (BuildContext context) => MyService());
+      Navigator.of(context).pushAndRemoveUntil(
+          materialPageRoute, (Route<dynamic> route) => false);
+    });
+  }
+
+  void myAlert(String title, String message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
   }
 
   @override
