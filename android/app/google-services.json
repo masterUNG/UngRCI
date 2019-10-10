@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "487835535014",
+    "firebase_url": "https://ungrci-8be69.firebaseio.com",
+    "project_id": "ungrci-8be69",
+    "storage_bucket": "ungrci-8be69.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487835535014:android:3c5377d952cd9dcb40d667",
+        "android_client_info": {
+          "package_name": "com.masterung.ungrci"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "487835535014-ndr2dnk6314i8vtr9vd92842kmtrh4nj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCP30WlPot-K-FjiVJRMBV5wNKnYWZ3zPY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "487835535014-ndr2dnk6314i8vtr9vd92842kmtrh4nj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
