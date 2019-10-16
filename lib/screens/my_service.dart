@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ungrci/screens/add_product.dart';
 import 'package:ungrci/screens/home.dart';
+import 'package:ungrci/screens/list_all_product.dart';
 import 'package:ungrci/screens/my_style.dart';
 
 class MyService extends StatefulWidget {
@@ -10,8 +12,26 @@ class MyService extends StatefulWidget {
 
 class _MyServiceState extends State<MyService> {
   // Explicit
+  String loginString = '';
+  Widget currentWidget = ListAllProduct();
 
   // Method
+  @override
+  void initState() {
+    super.initState();
+    findDisplayName();
+  }
+
+  Future<void> findDisplayName() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    await firebaseAuth.currentUser().then((response) {
+      setState(() {
+        loginString = response.displayName;
+        print('loginString = $loginString');
+      });
+    });
+  }
+
   Widget myDrawer() {
     return Drawer(
       child: ListView(
@@ -35,6 +55,12 @@ class _MyServiceState extends State<MyService> {
       ),
       title: Text('List All Product'),
       subtitle: Text('Show All Product in my Foctory'),
+      onTap: (){
+        setState(() {
+          currentWidget = ListAllProduct();
+        });
+        Navigator.of(context).pop();
+      },
     );
   }
 
@@ -47,6 +73,12 @@ class _MyServiceState extends State<MyService> {
       ),
       title: Text('Add Product'),
       subtitle: Text('Show Add Product Page'),
+      onTap: (){
+        setState(() {
+          currentWidget = AddProduct();
+        });
+        Navigator.of(context).pop();
+      },
     );
   }
 
@@ -69,7 +101,7 @@ class _MyServiceState extends State<MyService> {
   }
 
   Widget showLogin() {
-    return Text('Login by ');
+    return Text('Login by $loginString');
   }
 
   Widget showAppName() {
@@ -116,7 +148,7 @@ class _MyServiceState extends State<MyService> {
         title: Text('My Service'),
         actions: <Widget>[signOutButton()],
       ),
-      body: Text('body'),
+      body: currentWidget,
       drawer: myDrawer(),
     );
   }
