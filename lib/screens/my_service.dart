@@ -143,7 +143,7 @@ class _MyServiceState extends State<MyService> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text('My Service'),
         actions: <Widget>[signOutButton()],
