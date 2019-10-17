@@ -1,7 +1,11 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ungrci/screens/my_service.dart';
 import 'package:ungrci/screens/my_style.dart';
 
 class AddProduct extends StatefulWidget {
@@ -11,7 +15,7 @@ class AddProduct extends StatefulWidget {
 
 class _AddProductState extends State<AddProduct> {
   // Explicit
-  String name, detail;
+  String name, detail, urlPathPicture, qrCode;
   final formKey = GlobalKey<FormState>();
   File file;
 
@@ -39,7 +43,6 @@ class _AddProductState extends State<AddProduct> {
     setState(() {
       file = objFile;
     });
-
   }
 
   Widget galleryButton() {
@@ -49,8 +52,21 @@ class _AddProductState extends State<AddProduct> {
         size: 48.0,
         color: Colors.green.shade900,
       ),
-      onPressed: () {},
+      onPressed: () {
+        galleryThread();
+      },
     );
+  }
+
+  Future<void> galleryThread() async {
+    var objGallery = await ImagePicker.pickImage(
+      maxWidth: 800.0,
+      maxHeight: 480.0,
+      source: ImageSource.gallery,
+    );
+    setState(() {
+      file = objGallery;
+    });
   }
 
   Widget pictureButton() {
@@ -159,7 +175,50 @@ class _AddProductState extends State<AddProduct> {
     if ((name.isEmpty) || (detail.isEmpty)) {
       // Have Space
       myAlert('Have Space', 'Please Fill All Blank');
+    } else if (file == null) {
+      myAlert(
+          'Non Choose Picture', 'Please Choose Picture by Camera or Gallery');
+    } else {
+      uploadPicture();
     }
+  }
+
+  Future<void> uploadPicture() async {
+    int ranInt = Random().nextInt(10000);
+    qrCode = 'p$ranInt';
+
+    String namePicture = '$qrCode.jpg';
+
+    FirebaseStorage firebaseStorage = FirebaseStorage.instance;
+    StorageReference storageReference =
+        firebaseStorage.ref().child('Product/$namePicture');
+    StorageUploadTask storageUploadTask = storageReference.putFile(file);
+
+    await (await storageUploadTask.onComplete)
+        .ref
+        .getDownloadURL()
+        .then((response) {
+      urlPathPicture = response;
+      print('urlPath = $urlPathPicture');
+      updateFireStore();
+    });
+  }
+
+  Future<void> updateFireStore() async {
+    Firestore firestore = Firestore.instance;
+    CollectionReference collectionReference = firestore.collection('Product');
+
+    Map<String, dynamic> map = Map();
+    map['Name'] = name;
+    map['Detail'] = detail;
+    map['PathImage'] = urlPathPicture;
+    map['QRcode'] = qrCode;
+
+    await collectionReference.document().setData(map).then((response) {
+      MaterialPageRoute materialPageRoute =
+          MaterialPageRoute(builder: (BuildContext context) => MyService());
+          Navigator.of(context).pushAndRemoveUntil(materialPageRoute, (Route<dynamic> route)=>false);
+    });
   }
 
   void myAlert(String title, String message) {
