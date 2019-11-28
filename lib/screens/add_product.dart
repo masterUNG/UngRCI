@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -180,7 +181,22 @@ class _AddProductState extends State<AddProduct> {
           'Non Choose Picture', 'Please Choose Picture by Camera or Gallery');
     } else {
       uploadPicture();
+      uploadToServer();
     }
+  }
+
+  Future<void> uploadToServer() async {
+    String url = 'https://www.androidthai.in.th/pint/saveFile.php';
+    String fileName = 'testName2.jpg';
+
+    try {
+      FormData formData =
+          FormData.from({'file': UploadFileInfo(file, fileName)});
+
+      Response response = await Dio().post(url, data: formData);
+
+      print('File Upload Response = $response');
+    } catch (e) {}
   }
 
   Future<void> uploadPicture() async {
@@ -217,7 +233,8 @@ class _AddProductState extends State<AddProduct> {
     await collectionReference.document().setData(map).then((response) {
       MaterialPageRoute materialPageRoute =
           MaterialPageRoute(builder: (BuildContext context) => MyService());
-          Navigator.of(context).pushAndRemoveUntil(materialPageRoute, (Route<dynamic> route)=>false);
+      Navigator.of(context).pushAndRemoveUntil(
+          materialPageRoute, (Route<dynamic> route) => false);
     });
   }
 
